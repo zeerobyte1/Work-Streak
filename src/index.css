@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#f5f6fa] min-h-screen text-[#232946];
+    font-family: 'Roboto', 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+      'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .dark body {
+    @apply bg-[#232946] text-[#eaeaea];
+  }
+  * {
+    @apply border-[#e3e3e3];
+  }
+  .dark * {
+    @apply border-[#353a50];
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-white/80 border border-[#e3e3e3] shadow-md backdrop-blur-md;
+  }
+  .dark .glass-card {
+    @apply bg-[#232946]/80 border border-[#353a50] shadow-lg backdrop-blur-md;
+  }
+  .mobile-container {
+    @apply max-w-sm mx-auto min-h-screen bg-[#f5f6fa];
+  }
+  .dark .mobile-container {
+    @apply bg-[#232946];
+  }
+  .gradient-text {
+    @apply bg-gradient-to-r from-[#6ee7b7] to-[#a7c7e7] bg-clip-text text-transparent;
+  }
+  .dark .gradient-text {
+    @apply from-[#a7c7e7] to-[#fbc2eb];
+  }
+  .app-button {
+    @apply bg-[#6ee7b7] text-[#232946] font-medium py-3 px-6 rounded-xl active:scale-95 transition-all shadow hover:bg-[#4dd4a0];
+  }
+  .dark .app-button {
+    @apply bg-[#a7c7e7] text-[#232946] hover:bg-[#fbc2eb];
+  }
+  .app-input {
+    @apply w-full px-4 py-3 bg-white/80 border border-[#e3e3e3] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6ee7b7] focus:border-transparent transition-all text-[#232946] placeholder:text-[#a0aec0];
+  }
+  .dark .app-input {
+    @apply bg-[#232946]/80 border border-[#353a50] text-[#eaeaea] placeholder:text-[#a7c7e7];
+  }
+}
