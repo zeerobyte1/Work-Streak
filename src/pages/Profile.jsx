@@ -49,11 +49,40 @@ export default function Profile() {
   const [profileImage, setProfileImage] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
 
   useEffect(() => {
     fetchStats();
     loadProfileImage();
   }, []);
+
+  // Handle drag start
+  const handleDragStart = (e) => {
+    setIsDragging(true);
+    setStartX(e.type === 'mousedown' ? e.clientX : e.touches[0].clientX);
+  };
+
+  // Handle drag move
+  const handleDragMove = (e) => {
+    if (!isDragging) return;
+    const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+    const diff = startX - currentX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        setCurrentSlide((prev) => (prev + 1) % statCards.length);
+      } else {
+        setCurrentSlide((prev) => (prev - 1 + statCards.length) % statCards.length);
+      }
+      setIsDragging(false);
+    }
+  };
+
+  // Handle drag end
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
 
   async function loadProfileImage() {
     try {
@@ -75,6 +104,28 @@ export default function Profile() {
         databases.listDocuments(DATABASE_ID, FUTURE_TASKS_COLLECTION_ID, [Query.equal('userId', user.$id)])
       ]);
 
+      // Fetch namaz records from database or localStorage
+      let namazRecords = [];
+      try {
+        const namazResponse = await databases.listDocuments(
+          DATABASE_ID,
+          NAMAZ_COLLECTION_ID,
+          [Query.equal('userId', user.$id),
+          Query.equal('completed', true)]
+        );
+        namazRecords = namazResponse.documents;
+      } catch (error) {
+        console.error('Error fetching namaz records from database:', error);
+        // Fallback to localStorage
+        const allKeys = Object.keys(localStorage);
+        namazRecords = allKeys
+          .filter(key => key.startsWith('namaz_' + user.$id + '_'))
+          .map(key => {
+            const data = JSON.parse(localStorage.getItem(key));
+            return data || [];
+          })
+          .flat();
+      }
 
       // Calculate habit stats
       let completedHabitsCount = 0;
@@ -113,7 +164,7 @@ export default function Profile() {
 
       // Calculate namaz stats - count only completed namaz
       const completedNamaz = namazRecords.filter(r => r.completed === true).length;
-      const totalNamaz = 6; // Fixed total of 6 namaz types
+      const totalNamaz = 5; 
 
       // Calculate streak (consecutive days with completed daily tasks)
       let streak = 0;
@@ -388,7 +439,7 @@ export default function Profile() {
     {
       icon: Moon,
       label: 'Namaz',
-      value: `${stats.namazCompleted}/6`,
+      value: `${stats.namazCompleted}/5`,
       color: 'from-indigo-500 to-purple-500',
       description: 'Completed'
     },
@@ -400,6 +451,14 @@ export default function Profile() {
       description: `${stats.futureTasksCompleted} completed`
     }
   ];
+
+  // Auto-slide carousel every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % statCards.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [statCards.length]);
 
   return (
     <div className="mobile-container px-4 py-8 pb-20">
@@ -466,26 +525,55 @@ export default function Profile() {
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">Loading stats...</div>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            {statCards.map((card) => (
-              <div key={card.label} className="glass-card rounded-xl p-3 flex flex-col items-center">
-                <div className={`p-2 bg-gradient-to-br ${card.color} rounded-lg w-fit mb-3`}>
-                  <card.icon className="w-5 h-5 text-white" />
-                </div>
+          <div className="mb-6">
+            <div 
+              className="overflow-hidden rounded-2xl"
+              onMouseDown={handleDragStart}
+              onMouseMove={handleDragMove}
+              onMouseUp={handleDragEnd}
+              onMouseLeave={handleDragEnd}
+              onTouchStart={handleDragStart}
+              onTouchMove={handleDragMove}
+              onTouchEnd={handleDragEnd}
+            >
+              <div 
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                {statCards.map((card) => (
+                  <div key={card.label} className="min-w-full p-4">
+                    <div className="glass-card rounded-xl p-6 flex flex-col items-center max-w-xs mx-auto">
+                      <div className={`p-3 bg-gradient-to-br ${card.color} rounded-lg w-fit mb-4`}>
+                        <card.icon className="w-6 h-6 text-white" />
+                      </div>
 
-                <p className="inline-block px-3 py-1 text-sm font-medium text-blue-700 bg-white/50 backdrop-blur-2xl border border-gray-200/50 rounded-xl shadow-lg ring-1 ring-white/60">
-                  {card.label}
-                </p>
+                      <p className="inline-block px-4 py-2 text-sm font-medium text-blue-700 bg-white/50 backdrop-blur-2xl border border-gray-200/50 rounded-xl shadow-lg ring-1 ring-white/60 mb-3">
+                        {card.label}
+                      </p>
 
-                <p className="text-md font-bold text-gray-800 dark:text-gray-100">{card.value}</p>
-                
+                      <p className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">{card.value}</p>
 
-
-                <p className="text-md font-bold text-green-800">
-                  {card.description}
-                </p>
+                      <p className="text-md font-bold text-green-800">
+                        {card.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+            
+            {/* Navigation dots */}
+            <div className="flex justify-center gap-2 mt-4">
+              {statCards.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentSlide ? 'bg-indigo-600 w-6' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
 
           <div className="glass-card rounded-2xl p-5 mb-4">

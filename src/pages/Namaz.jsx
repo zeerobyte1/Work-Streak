@@ -30,7 +30,8 @@ export default function Namaz() {
         NAMAZ_COLLECTION_ID,
         [
           Query.equal('userId', user.$id),
-          Query.equal('date', today)
+          Query.equal('date', today),
+          Query.equal('completed', true)
         ]
       );
       setNamazRecords(response.documents);
