@@ -496,9 +496,10 @@ export default function Profile() {
           <div className="min-w-0 flex-1">
             <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 truncate">{user?.name || 'User'}</h2>
             <p className="text-gray-600 text-xs dark:text-gray-300 truncate">{user?.email || ''}</p>
+            <p className="text-gray-600 text-xs dark:text-gray-300 truncate">Joined Date: {user?.$createdAt ? new Date(user.$createdAt).toLocaleDateString() : 'Few Days Ago..'}</p>
           </div>
-        </div>
-        <div className="flex gap-2 border-t border-gray-200 dark:border-gray-700 pt-1">
+        </div>        
+         <div className="flex gap-2 border-t border-gray-200 dark:border-gray-700 pt-1">
           <button
             onClick={() => setShowDeleteConfirm(true)}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-200 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
@@ -525,7 +526,7 @@ export default function Profile() {
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">Loading stats...</div>
       ) : (
         <>
-          <div className="mb-6">
+          <div className="mb-4">
             <div 
               className="overflow-hidden rounded-2xl"
               onMouseDown={handleDragStart}
@@ -541,9 +542,9 @@ export default function Profile() {
                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
                 {statCards.map((card) => (
-                  <div key={card.label} className="min-w-full p-4">
-                    <div className="glass-card rounded-xl p-6 flex flex-col items-center max-w-xs mx-auto">
-                      <div className={`p-3 bg-gradient-to-br ${card.color} rounded-lg w-fit mb-4`}>
+                  <div key={card.label} className="min-w-full">
+                    <div className="glass-card rounded-xl p-4 flex flex-col items-center max-w-xs mx-auto ">
+                      <div className={`p-3 bg-gradient-to-br ${card.color} rounded-lg w-fit mb-2`}>
                         <card.icon className="w-6 h-6 text-white" />
                       </div>
 
@@ -666,7 +667,7 @@ export default function Profile() {
                       <div className="space-y-2">
                         {day.tasks.map((task, idx) => (
                           <div key={idx} className="flex items-center gap-2 text-sm">
-                            <Clock className={`w-4 h-4 ${task.completed ? 'text-green-500' : 'text-purple-500'}`} />
+                            <Clock className={`w-4 h-4 ${task.$createdAt ? 'text-green-500' : 'text-purple-500'}`} />
                             <span className={task.completed ? 'text-gray-800 dark:text-gray-100' : 'text-gray-600 dark:text-gray-300'}>
                               {task.title}
                             </span>

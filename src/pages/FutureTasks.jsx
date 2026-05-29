@@ -123,11 +123,16 @@ export default function FutureTasks() {
             className="app-input"
           />
           <input
-            type="date"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-            className="app-input"
-          />
+  type={deadline ? "date" : "text"}
+  placeholder="Select deadline"
+  value={deadline}
+  onFocus={(e) => (e.target.type = "date")}
+  onBlur={(e) => {
+    if (!deadline) e.target.type = "text";
+  }}
+  onChange={(e) => setDeadline(e.target.value)}
+  className="app-input"
+/>
           <button
             type="submit"
             className="app-button w-full"

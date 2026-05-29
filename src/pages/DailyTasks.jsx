@@ -161,8 +161,8 @@ export default function DailyTasks() {
               key={task.$id}
               className={`glass-card rounded-xl p-4 flex items-center gap-3 transition-all border-l-4 ${
                 task.completed
-                  ? 'border-[#6ee7b7] opacity-60'
-                  : 'border-[#a7c7e7]'
+                  ? 'border-[#6ee7b7] opacity-100'
+                  : 'border-[#14487c]'
               }`}
             >
               <button
@@ -175,12 +175,13 @@ export default function DailyTasks() {
               >
                 {task.completed ? <Check className="w-5 h-5" /> : <div className="w-5 h-5" />}
               </button>
+              {/* first letter uppercase this */}
               <span
-                className={`flex-1 font-semibold text-base ${
+                className={`flex-1 font-semibold text-lg ${
                   task.completed ? 'line-through text-[#a0aec0] dark:text-[#a7c7e7]/60' : 'text-[#232946] dark:text-[#eaeaea]'
                 }`}
               >
-                {task.title}
+                {task.title.charAt(0).toUpperCase() + task.title.slice(1)}
               </span>
               <button
                 onClick={() => deleteTask(task.$id, task)}

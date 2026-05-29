@@ -124,12 +124,16 @@ export default function Habits() {
             className="app-input"
           />
           <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="app-input"
-            placeholder="End date (optional)"
-          />
+  type={endDate ? "date" : "text"}
+  placeholder="End date"
+  value={endDate}
+  onFocus={(e) => (e.target.type = "date")}
+  onBlur={(e) => {
+    if (!endDate) e.target.type = "text";
+  }}
+  onChange={(e) => setEndDate(e.target.value)}
+  className="app-input"
+/>
           <button
             type="submit"
             className="app-button w-full"
